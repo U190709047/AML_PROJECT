@@ -70,12 +70,23 @@ if st.sidebar.button("Predict"):
     town_encoded = town_mapping[town]
     neighbourhood_encoded = neighbourhood_mapping[neighbourhood]
 
-    user_data = np.array([total_square_meter, number_of_room, floor_of_home, town_encoded, city_encoded, neighbourhood_encoded, credi_accepting, kombi_dogalgaz_heating, number_of_floor]).reshape(1, -1)
+    user_data = pd.DataFrame({
+        'Total Square of Meter': [total_square_meter],
+        'Number of room': [number_of_room],
+        'Floor of home': [floor_of_home],
+        'Town': [town_encoded],
+        'City': [city_encoded],
+        'Neighbourhood': [neighbourhood_encoded],
+        'Credi Accepting': [credi_accepting],
+        'Kombi Doğalgaz Heating': [kombi_dogalgaz_heating],
+        'Number of floor': [number_of_floor]
+    })
+
     user_data = scaler.transform(user_data)
     prediction = lr_model.predict(user_data)
     prediction = np.clip(prediction, 1_000_000, 15_000_000)
     st.write(f"Estimated Price: {prediction[0]:,.2f} TL")
 
 st.write("Comparison of Actual and Estimated Prices:")
-results = pd.DataFrame({'Actual Price': y_test, 'Estimated Price': y_pred})
+results = pd.DataFrame({'Actual Price': y_test, 'Estimated Price': y_pred}).reset_index(drop=True)
 st.write(results.head())
